@@ -149,7 +149,7 @@ function findAvailableIP(subnet, usedIPs) {
   const [subnetBase, subnetMask] = subnet.split('/');
   const subnetPrefix = subnetBase.split('.').slice(0, 3).join('.');
 
-  const start = 1; // Starting host number
+  const start = 2; // Starting host number
   const end = 254; // Ending host number
 
   for (let i = start; i <= end; i++) {
