@@ -65,7 +65,7 @@ app.delete('/api/peer/:publicKey', (req, res) => {
 
 // GET endpoint to check available IP address
 app.get('/api/available-ip', (req, res) => {
-  const subnet = '10.0.0.0/24'; // Default subnet
+  const subnet = '10.0.0.0/32'; // Default subnet
   
   getAvailableIPAddress(subnet, (err, availableIP) => {
     if (err) {
