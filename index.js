@@ -6,7 +6,7 @@ const port = 14500;
 app.use(express.json());
 
 // Check if a peer exists in the WireGuard configuration
-app.get('/peer/:publicKey', (req, res) => {
+app.get('/api/peer/:publicKey', (req, res) => {
   const { publicKey } = req.params;
 
   checkPeerInWireGuard(publicKey, (err, existsInWireGuard) => {
@@ -42,7 +42,7 @@ app.post('/peer', (req, res) => {
 });
 
 // Remove a peer
-app.delete('/peer/:publicKey', (req, res) => {
+app.delete('/api/peer/:publicKey', (req, res) => {
   const { publicKey } = req.params;
 
   checkPeerInWireGuard(publicKey, (err, existsInWireGuard) => {
@@ -61,6 +61,23 @@ app.delete('/peer/:publicKey', (req, res) => {
     }
   });
 });
+
+
+// GET endpoint to check available IP address
+app.get('/api/available-ip', (req, res) => {
+  const subnet = '10.0.0.0/24'; // Default subnet
+  
+  getAvailableIPAddress(subnet, (err, availableIP) => {
+    if (err) {
+      res.status(500).send({ message: `Failed to get available IP: ${err.message}` });
+    } else {
+      res.status(200).send({ availableIP });
+    }
+  });
+});
+
+
+
 
 // Function to add a peer to WireGuard
 function addPeerToWireGuard(publicKey, allowedIPs, callback) {
@@ -101,6 +118,56 @@ function checkPeerInWireGuard(publicKey, callback) {
     callback(null, exists);
   });
 }
+
+// Function to get the list of WireGuard peers and return an available address
+function getAvailableIPAddress(subnet, callback) {
+  const command = `wg show wg0 allowed-ips`;
+  
+  exec(command, (err, stdout, stderr) => {
+    if (err) {
+      console.error(`Error fetching peers: ${stderr}`);
+      return callback(err);
+    }
+
+    // Parse the output to get the list of used IPs
+    const usedIPs = stdout.split('\n')
+                          .map(line => line.split('\t')[1])
+                          .filter(ip => ip && ip.includes('/'));
+
+    const availableIP = findAvailableIP(subnet, usedIPs);
+    
+    if (availableIP) {
+      callback(null, availableIP);
+    } else {
+      callback(new Error('No available IP address found in the subnet'));
+    }
+  });
+}
+
+// Function to find an available IP in the subnet
+function findAvailableIP(subnet, usedIPs) {
+  const [subnetBase, subnetMask] = subnet.split('/');
+  const subnetPrefix = subnetBase.split('.').slice(0, 3).join('.');
+
+  const start = 1; // Starting host number
+  const end = 254; // Ending host number
+
+  for (let i = start; i <= end; i++) {
+    const candidateIP = `${subnetPrefix}.${i}`;
+    const candidateCIDR = `${candidateIP}/${subnetMask}`;
+    
+    if (!usedIPs.includes(candidateCIDR)) {
+      return candidateCIDR;
+    }
+  }
+  
+  return null;
+}
+
+
+
+
+
 
 app.listen(port, () => {
   console.log(`WireGuard API listening at http://localhost:${port}`);
