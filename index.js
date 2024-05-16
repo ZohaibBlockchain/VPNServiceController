@@ -49,7 +49,7 @@ app.delete('/api/peer/:publicKey', (req, res) => {
     if (err) {
       res.status(500).send({ message: 'Failed to check peer in WireGuard.', error: err });
     } else if (!existsInWireGuard) {
-      res.status(404).send({ message: 'Peer not found.' });
+      res.status(200).send({ message: 'Peer not found.' });
     } else {
       removePeerFromWireGuard(publicKey, (err) => {
         if (err) {
