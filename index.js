@@ -21,7 +21,7 @@ app.get('/api/peer/:publicKey', (req, res) => {
 });
 
 // Add a peer
-app.post('/peer', (req, res) => {
+app.post('/api/peer', (req, res) => {
   const { publicKey, allowedIPs } = req.body;
 
   checkPeerInWireGuard(publicKey, (err, existsInWireGuard) => {
