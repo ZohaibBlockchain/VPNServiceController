@@ -28,13 +28,13 @@ app.post('/api/peer', (req, res) => {
     if (err) {
       res.status(500).send({ message: 'Failed to check peer in WireGuard.', error: err });
     } else if (existsInWireGuard) {
-      res.status(400).send({ message: 'Peer already exists.' });
+      res.status(200).send({ message: 'Peer already exists.' });
     } else {
       addPeerToWireGuard(publicKey, allowedIPs, (err) => {
         if (err) {
           res.status(500).send({ message: 'Failed to add peer.', error: err });
         } else {
-          res.status(201).send({ message: 'Peer added.' });
+          res.status(200).send({ message: 'Peer added.' });
         }
       });
     }
@@ -42,8 +42,8 @@ app.post('/api/peer', (req, res) => {
 });
 
 // Remove a peer
-app.delete('/api/peer/:publicKey', (req, res) => {
-  const { publicKey } = req.params;
+app.post('/api/peer/rm', (req, res) => {
+  const { publicKey } = req.body;
 
   checkPeerInWireGuard(publicKey, (err, existsInWireGuard) => {
     if (err) {
