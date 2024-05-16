@@ -134,6 +134,8 @@ function getAvailableIPAddress(subnet, callback) {
                           .map(line => line.split('\t')[1])
                           .filter(ip => ip && ip.includes('/'));
 
+    console.log(usedIPs);
+
     const availableIP = findAvailableIP(subnet, usedIPs);
     
     if (availableIP) {
