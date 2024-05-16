@@ -63,9 +63,10 @@ app.delete('/api/peer/:publicKey', (req, res) => {
 });
 
 
+
 // GET endpoint to check available IP address
 app.get('/api/available-ip', (req, res) => {
-  const subnet = '10.0.0.0/32'; // Default subnet
+  const subnet = '10.200.200.0/32'; // Default subnet
   
   getAvailableIPAddress(subnet, (err, availableIP) => {
     if (err) {
@@ -75,7 +76,6 @@ app.get('/api/available-ip', (req, res) => {
     }
   });
 });
-
 
 
 
@@ -158,6 +158,7 @@ function findAvailableIP(subnet, usedIPs) {
     const candidateIP = `${subnetPrefix}.${i}`;
     const candidateCIDR = `${candidateIP}/${subnetMask}`;
     
+    console.log(candidateCIDR);
     if (!usedIPs.includes(candidateCIDR)) {
       return candidateCIDR;
     }
